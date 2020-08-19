@@ -122,6 +122,14 @@ ktdB+x1/lodGyMLzGV/uxtsjhwFbX0t7mzDLAm0USboXyclnQ65y8C1UEVOBK30W
 Mw==
 -----END PRIVATE KEY-----
 """
+
+    let ecPem512PublicKeyForLeadingNullBytes = """
+-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBrXz7z7tCynlwtxEOET88IMgnPdd/6ej63BrRywCc
+PplMZsGsnt9Rtm4htqpkxArOwUnffGaWvgDfc2ajO095kRQBFaAninsF0I66nsBBBEe5rXaDZ7WE
+K2ymk4+7Q+AEO7NYhwLNJ0xBdj6RsuDAhUWiBHh8BzH1hNuFrK6F6leJHK0=
+-----END PUBLIC KEY-----
+"""
     
     func test_simpleCycle() { 
         do {
@@ -323,6 +331,24 @@ Mw==
             let r = JWTSignature.subdata(in: 0 ..< JWTSignature.count/2)
             let s = JWTSignature.subdata(in: JWTSignature.count/2 ..< JWTSignature.count)
             let ecdsaPublicKey = try ECPublicKey(key: ecPem512PublicKey)
+            let sig = try ECSignature(r: r, s: s)
+            let verified = sig.verify(plaintext: JWTDigest, using: ecdsaPublicKey)
+            XCTAssertTrue(verified)
+        } catch {
+            return XCTFail("test_Pem512ECDSAVerify failed: \(error)")
+        }
+    }
+    
+    func test_Pem512ECDSAVerifyTwoLeadingNullBytes() {
+        do {
+            // generated from jwt.io
+            guard let JWTDigest =  "eyJhbGciOiJFUzUxMiJ9.eyJpc3MiOiI0M0ZFNEM5Ny0xQzlBLTQ2MDYtODdFQy0zNTJDMEU0NENFQTUiLCJpYXQiOjE1OTc3NjUyNjQsImV4cCI6MTU5Nzc2NTM4NCwibm9uY2UiOiJqUDE4SStzSEJiT1I5akI4NzZcL1M4Zz09In0".data(using: .utf8),
+                let JWTSignature = Data(base64urlEncoded: "ARXYsbWXUV4vvqOzvbeYu9CVPNjAuQFg2Yj3JknEBYypF3-wCe7DNbKM9EpEBbneA-yiFPp6-0bM7K9A9wwiLN2aAAAOoDDqRgfo9dVBNeQwnMmaBbMi2FdRkTrEWso_-6uaRN7Gk57YYS3vbSmBv6hnF8VKodlPypAaqSptkpV3M7cE") else {
+                    return XCTFail("Failed to create JWT digest")
+            }
+            let r = JWTSignature.subdata(in: 0 ..< JWTSignature.count/2)
+            let s = JWTSignature.subdata(in: JWTSignature.count/2 ..< JWTSignature.count)
+            let ecdsaPublicKey = try ECPublicKey(key: ecPem512PublicKeyForLeadingNullBytes)
             let sig = try ECSignature(r: r, s: s)
             let verified = sig.verify(plaintext: JWTDigest, using: ecdsaPublicKey)
             XCTAssertTrue(verified)

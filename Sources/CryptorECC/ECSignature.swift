@@ -125,20 +125,22 @@ public struct ECSignature {
         // Convert r,s signature to ASN1 for SecKeyVerifySignature
         var asnSignature = Data()
         // r value is first 32 bytes
-        var rSig =  r
-        // If first bit is 1, add a 00 byte to mark it as positive for ASN1
-        if rSig[0] == 0 {
+        var rSig = r
+        // Strip leading null bytes
+        while rSig[0] == 0 {
             rSig = rSig.advanced(by: 1)
         }
+        // If first bit is 1, add a 00 byte to mark it as positive for ASN1
         if rSig[0].leadingZeroBitCount == 0 {
             rSig = Data(count: 1) + rSig
         }
         // r value is last 32 bytes
         var sSig = s
-        // If first bit is 1, add a 00 byte to mark it as positive for ASN1
-        if sSig[0] == 0 {
+        // Strip leading null bytes
+        while sSig[0] == 0 {
             sSig = sSig.advanced(by: 1)
         }
+        // If first bit is 1, add a 00 byte to mark it as positive for ASN1
         if sSig[0].leadingZeroBitCount == 0 {
             sSig = Data(count: 1) + sSig
         }
