@@ -189,13 +189,13 @@ public struct ECSignature {
         let trimmedSData: Data
         let rExtra = rData.count - signatureLength/2
         if rExtra < 0 {
-            trimmedRData = Data(count: 1) + rData
+            trimmedRData = Data(count: -rExtra) + rData
         } else {
             trimmedRData = rData.dropFirst(rExtra)
         }
         let sExtra = sData.count - signatureLength/2
         if sExtra < 0 {
-            trimmedSData = Data(count: 1) + sData
+            trimmedSData = Data(count: -sExtra) + sData
         } else {
             trimmedSData = sData.dropFirst(sExtra)
         }
